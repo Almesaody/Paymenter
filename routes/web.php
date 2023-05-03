@@ -21,6 +21,8 @@ Route::get('/home', function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home');
 Route::get('/manifest.json', [App\Http\Controllers\HomeController::class, 'manifest'])->name('manifest');
 
+Route::get('/profile', [App\Http\Controllers\HomeController::class, 'profile'])->name('profile')->middleware(['auth', 'password.confirm']);
+Route::post('/profile', [App\Http\Controllers\HomeController::class, 'update'])->name('profile.update')->middleware(['auth', 'password.confirm']);
 // Products routes
 Route::group(['prefix'=> 'products'], function(){
     Route::get('/', [App\Http\Controllers\ProductsController::class, 'index'])->name('products.index');
@@ -40,6 +42,7 @@ Route::group(['prefix'=>'tickets'], function(){
     Route::get('/create', [App\Http\Controllers\TicketsController::class, 'create'])->name('tickets.create');
     Route::post('/store', [App\Http\Controllers\TicketsController::class, 'store'])->name('tickets.store');
     Route::get('/{id}', [App\Http\Controllers\TicketsController::class, 'show'])->name('tickets.show');
+    Route::post('{id}/reply', [App\Http\Controllers\TicketsController::class, 'reply'])->name('tickets.reply');
     Route::post('/{id}/update', [App\Http\Controllers\TicketsController::class, 'update'])->name('tickets.update');
     Route::delete('/{id}/delete', [App\Http\Controllers\TicketsController::class, 'delete'])->name('tickets.delete');
 });
