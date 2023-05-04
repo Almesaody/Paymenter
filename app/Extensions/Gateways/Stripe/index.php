@@ -11,7 +11,7 @@ $author = 'CorwinDev';
 $website = 'http://stripe.com';
 $database = 'gateway_stripe';
 
-function create($product, $order)
+function getUrl($product, $order)
 {
     $client = StripeClient();
     // Create array with all the products
@@ -94,6 +94,6 @@ function stripeClient()
 function pay($total, $products, $orderId)
 {
     $stripe = stripeClient();
-    $order = create($products, $orderId);
+    $order = getUrl($products, $orderId);
     return $stripe->checkout->sessions->retrieve($order->id, []);
 }
