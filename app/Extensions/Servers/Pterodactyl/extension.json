@@ -32,7 +32,12 @@
         },
         {
             "name": "egg",
-            "friendlyName": "Pterodactyl Egg",
+            "friendlyName": "Pterodactyl Egg ID",
+            "type": "text"
+        },
+        {
+            "name": "nest",
+            "friendlyName": "Pterodactyl Nest ID",
             "type": "text"
         },
         {
@@ -61,40 +66,19 @@
             "type": "text"
         },
         {
-            "name": "database",
+            "name": "databases",
             "friendlyName": "Pterodactyl Database",
             "type": "text"
         },
         {
-            "name": "allocation",
-            "friendlyName": "Pterodactyl Allocation",
-            "type": "text"
-        },
-        {
-            "name": "port",
-            "friendlyName": "Pterodactyl Port",
-            "type": "text"
-        },
-        {
-            "name": "startup",
-            "friendlyName": "Pterodactyl Startup",
-            "type": "text",
-            "Required": false
-        },
-        {
-            "name": "image",
-            "friendlyName": "Image ID",
+            "name": "backups",
+            "friendlyName": "Pterodactyl Backups",
             "type": "text"
         },
         {
             "name": "skip_scripts",
             "friendlyName": "Pterodactyl Skip Scripts",
             "type": "boolean"
-        },
-        {
-            "name": "backups",
-            "friendlyName": "Pterodactyl Backups",
-            "Type": "boolean"
         }
     ]
 }
