@@ -10,6 +10,13 @@
                 <div class="p-6 sm:px-20 bg-white border-b border-gray-200 dark:bg-darkmode2 dark:border-black">
                     <h1 class="dark:text-darkmodetext text-xl text-gray-500">Edit profile</h1>
                     <div class="grid grid-cols-1 gap-4">
+                    <!-- display create ticket button -->
+                    <div class="flex items-center justify-end mt-6">
+                        <a href="{{ route('tickets.create') }}"
+                            class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                            {{ __('tickets.create_ticket') }}
+                        </a>
+                    </div>
                         <x-success class="mt-4" />
                         <div class="mt-6 text-gray-500 dark:text-darkmodetext dark:bg-darkmode2">
                             <form method="POST" action="{{ route('profile.update') }}">

@@ -21,7 +21,9 @@ module.exports = {
                 darkbutton: '#2f3949',
                 darkmodetext: "#cbd5e1",
                 darkmode: '#1A202C',
+                darkmodehover: '#2D3748',
                 darkmode2: '#252D3B',
+                logo: '#5270fd',
             },
             fontFamily: {
                 sans: ["Nunito", ...defaultTheme.fontFamily.sans],
@@ -35,5 +37,8 @@ module.exports = {
         },
     },
 
-    plugins: [require("@tailwindcss/forms")],
+    plugins: [
+        require('@tailwindcss/typography'),
+        require("@tailwindcss/forms")
+    ],
 };
