@@ -47,11 +47,13 @@ class InvoiceController extends Controller
         foreach($order->products as $product) {
             $test = json_decode(Products::find($product['id'])->first());
             $test->quantity = $product['quantity'];
-            $test->config = $product['config'];
+            if(isset($product['config'])) {
+                $test->config = $product['config'];
+            }
             $products[] = $test;
             $total += $test->price * $test->quantity;
         }
-
+        
         if ($request->get('payment_method')) {
             $payment_method = $request->get('payment_method');
             $payment_method = ExtensionHelper::getPaymentMethod($payment_method, $total, $products, $invoice->id);
