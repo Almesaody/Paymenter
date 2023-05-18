@@ -22,6 +22,7 @@ class InvoiceController extends Controller
     {
         $order = Orders::findOrFail($id->order_id);
         $invoice = $id;
+        
         if($invoice->user_id != auth()->user()->id) {
             return redirect()->route('invoice.index');
         }
