@@ -36,8 +36,8 @@ class ProductsController extends Controller
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('images'), $imageName);
         $data['image'] = '/images/' . $imageName;
-        Products::create($data);
-        return redirect()->route('admin.products');
+        $product = Products::create($data);
+        return redirect()->route('admin.products.edit', $product->id)->with('success', 'Product created successfully');
     }
 
     public function edit(Products $product)
