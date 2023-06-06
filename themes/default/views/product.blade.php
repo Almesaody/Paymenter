@@ -1,99 +1,63 @@
 <x-app-layout>
     <x-slot name="title">
-        {{ __('Home') }}
+        {{ __('Products') }}
     </x-slot>
-    <div class="py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <x-success class="mt-4" />
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8" style="padding-bottom: 20px;">
-            <div class="overflow-hidden bg-white shadow-xl dark:bg-darkmode2 sm:rounded-lg">
-                <div class="p-6 border-gray-200 dark:bg-darkmode2">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 w-12 h-12" style="display: flex;">
-                            <img class="w-8 h-8 rounded-md" style="align-self: center; width: 3rem; height: 3rem;"
-                                src="https://www.gravatar.com/avatar/{{ md5(Auth::user()->email) }}?s=200&d=mp" />
+    <div class="dark:bg-darkmode dark:text-darkmodetext py-12">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="dark:bg-darkmode2 overflow-hidden bg-white rounded-lg">
+                <div class="dark:bg-darkmode2 p-6 bg-white">
+                    <!-- display all categories with products -->
+                    <h1 class="text-center text-2xl font-bold">{{ __('Categories') }}</h1>
+                    @if ($categories->count() < 1)
+                        <div class="dark:bg-darkmode px-4 py-5 sm:px-6">
+                            <h3 class="dark:text-darkmodetext text-lg leading-6 font-medium text-gray-900">
+                                {{ __('Categories') }}
+                            </h3>
+                            <p class="dark:text-darkmodetext mt-1 max-w-2xl text-sm text-gray-500">
+                                {{ __('Category not found!') }}
+                            </p>
                         </div>
-                        <div class="ml-4 text-lg font-semibold leading-7">
-                            {{ __('Welcome back') }}, {{ Auth::user()->name }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-4">
-            <div class="">
-            </div>
-            <div class="items-center col-span-1 sm:px-6 lg:px-8 lg:col-span-3">
-                <div class="h-8 overflow-hidden bg-white shadow-xl dark:text-white dark:bg-darkmode2 sm:rounded-lg">
-                    <div class="border-b border-gray-200 dark:text-white dark:bg-darkmode2">
-                        <div class="flex items-center">
-                            <div class="mx-2 font-semibold leading-7 h-10">
-                                <a class="text-sm">Showing 1 to 2 of 2 entries</a>
+                    @endif
+                    @foreach ($categories as $category)
+                        <div class="mt-4">
+                            <h2 class="text-center text-xl font-bold">{{ $category->name }}</h2>
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                @foreach ($category->products as $product)
+                                    <div class="p-4 transition rounded-lg delay-400 hover:shadow-lg dark:bg-darkmode">
+                                        <a href="{{ route('checkout.add') }}?id={{ $product->id }}">
+                                            <img class="rounded-lg" src="{{ $product->image }}"
+                                                alt="{{ $product->name }}"
+                                                class="object-cover object-center w-full h-64"
+                                                onerror="removeElement(this);" >
+                                            <script>
+                                                function removeElement(element) {
+                                                    element.remove();
+                                                    this.error = true;
+                                                }
+                                            </script>
+                                            <div class="mt-2">
+                                                <h3
+                                                    class="text-center dark:text-darkmodetext text-lg font-medium text-gray-900">
+                                                    {{ $product->name }}</h3>
+                                                <p
+                                                    class="text-center dark:text-darkmodetext mt-1 text-sm text-gray-500">
+                                                    {{ $product->description }}</p>
+                                                <p
+                                                    class="text-center dark:text-darkmodetext mt-1 text-sm text-gray-500">
+                                                    @if ($product->price == 0)
+                                                        {{ __('Free') }}
+                                                    @else
+                                                        {{ config('settings::currency_sign') }}{{ $product->price }}
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
-                <br>
-                <table id="tableServicesList"
-                    class="items-center table bg-white shadow-xl dark:text-white dark:bg-darkmode2 sm:rounded-lg w-full p-1">
-                    <thead class="border-b border-gray-200">
-                        <tr>
-                            <th class="dark:text-white sorting_asc dark:bg-darkmode2 p-2">{{ __('Product/Service') }}
-                            </th>
-                            <th class="dark:text-white sorting_asc dark:bg-darkmode2 p-2">{{ __('Pricing') }}</th>
-                            <th class="dark:text-white sorting_asc dark:bg-darkmode2 p-2">{{ __('Next Due Date') }}</th>
-                            <th class="dark:text-white sorting_asc dark:bg-darkmode2 p-2">{{ __('Status') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="w-full">
-                        @if (count($services) > 0)
-                            <!-- If the array is empty, then we don't want to show the table -->
-                            @foreach ($services as $service)
-                                @foreach ($service->products()->get() as $product)
-                                    @php
-                                        $product = App\Models\Products::where('id', $product->product_id)
-                                            ->get()
-                                            ->first();
-                                    @endphp
-                                    <tr>
-                                        <td class="dark:text-white dark:bg-darkmode2 p-3">
-                                            <strong>{{ ucfirst($product->name) }}</strong>
-                                        </td>
-                                        <td class="text-center dark:text-white dark:bg-darkmode2 p-3" data-order="0.00">
-                                            @if ($product->price == 0)
-                                                {{ __('Free') }}
-                                            @else
-                                                {{ config('settings::currency_sign') }}{{ number_format((float) $product->price . '0', 2, '.', '') }}
-                                            @endif
-                                        </td>
-                                        <td class="text-center dark:text-white dark:bg-darkmode2 p-3">
-                                            {{ date('l jS F Y', strtotime($service->expiry_date)) }}</td>
-                                        <td class="text-center dark:text-white dark:bg-darkmode2 p-3">
-                                            <div class="border border-gray-200">
-                                                @if ($service->status === 'paid')
-                                                    <span
-                                                        class="label status status-active dark:bg-darkmode2 text-green-500">Active</span>
-                                                @elseif($service->status === 'pending')
-                                                    <span
-                                                        class="label status status-active dark:bg-darkmode2 text-orange-400">Pending</span>
-                                                @elseif($service->status === 'cancelled')
-                                                    <span
-                                                        class="label status status-active dark:bg-darkmode2 text-red-600">Expired</span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endforeach
-                        @elseif (count($services) <= 0)
-                            <!-- If the array is empty, then don't show any data -->
-                            <tr>
-                                <td colspan="4" class="dark:text-white dark:bg-darkmode2"
-                                    style="text-align: center;">No
-                                    services found.</td>
-                            </tr>
-                        @endif
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
