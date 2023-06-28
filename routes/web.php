@@ -1,7 +1,15 @@
 <?php
 
+use App\Classes\Routing;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+
+require __DIR__ . '/admin.php';
+require __DIR__ . '/extensions.php';
+
+if (!Routing::useLaravelRouting()) {
+    Route::view('/{path?}', 'app')
+    ->where('path', '^(?!(\/)?(api|static|images)).+');
+}
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,46 +22,57 @@ use Illuminate\Support\Facades\Auth;
 */
 
 Route::get('/', [App\Http\Controllers\BasisController::class, 'index'])->name('index');
-// auth routes;
-Route::get('/home', function () {
-    return view('home');
-})->middleware(['auth'])->name('home');
-// return homecontroller;
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware(['auth'])->name('home');
-Route::get('/manifest.json', [App\Http\Controllers\HomeController::class, 'manifest'])->name('manifest');
-Route::get('/profile', [App\Http\Controllers\HomeController::class, 'profile'])->name('profile')->middleware(['auth', 'password.confirm']);
-Route::post('/profile', [App\Http\Controllers\HomeController::class, 'update'])->name('profile.update')->middleware(['auth', 'password.confirm']);
-Route::get('/change-password', [App\Http\Controllers\HomeController::class, 'password'])->middleware(['auth'])->name('password.change-password');
-Route::get('/products', [App\Http\Controllers\BasisController::class, 'products'])->name('products');
+Route::get('/home', [App\Http\Controllers\Clients\HomeController::class, 'index'])->middleware(['auth'])->name('clients.home');
+Route::get('/manifest.json', [App\Http\Controllers\BasisController::class, 'manifest'])->name('manifest');
+Route::get('/profile', [App\Http\Controllers\Clients\HomeController::class, 'profile'])->name('clients.profile')->middleware(['auth', 'password.confirm']);
+Route::post('/profile', [App\Http\Controllers\Clients\HomeController::class, 'update'])->name('clients.profile.update')->middleware(['auth', 'password.confirm']);
+Route::post('/profile/tfa', [App\Http\Controllers\Clients\HomeController::class, 'update2FA'])->name('clients.profile.tfa')->middleware(['auth', 'password.confirm']);
+Route::get('/change-password', [App\Http\Controllers\Clients\HomeController::class, 'password'])->name('clients.password.change-password')->middleware(['auth']);
+Route::get('/tos', [App\Http\Controllers\BasisController::class, 'tos'])->name('tos');
 
 Route::group(['prefix' => 'checkout'], function () {
     Route::get('/', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
-    Route::get('/config/{id}', [App\Http\Controllers\CheckoutController::class, 'config'])->name('checkout.config');
-    Route::post('/config/{id}', [App\Http\Controllers\CheckoutController::class, 'configPost'])->name('checkout.config.post');
+    Route::get('/config/{product}', [App\Http\Controllers\CheckoutController::class, 'config'])->name('checkout.config');
+    Route::post('/config/{product}', [App\Http\Controllers\CheckoutController::class, 'configPost'])->name('checkout.config.post');
     Route::post('/', [App\Http\Controllers\CheckoutController::class, 'pay'])->name('checkout.pay')->middleware('auth');
+    Route::post('/coupon', [App\Http\Controllers\CheckoutController::class, 'coupon'])->name('checkout.coupon');
     Route::post('/{id}', [App\Http\Controllers\CheckoutController::class, 'remove'])->name('checkout.remove');
-    Route::post('/{id}/update', [App\Http\Controllers\CheckoutController::class, 'update'])->name('checkout.update');
-    Route::get('/add', [App\Http\Controllers\CheckoutController::class, 'add'])->name('checkout.add');
-    Route::get('/success', [App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
-    Route::get('/cancel', [App\Http\Controllers\CheckoutController::class, 'cancel'])->name('checkout.cancel');
+    Route::post('/{product}/update', [App\Http\Controllers\CheckoutController::class, 'update'])->name('checkout.update');
+    Route::get('/add/{product}', [App\Http\Controllers\CheckoutController::class, 'add'])->name('checkout.add');
 });
 
 Route::group(['prefix' => 'tickets', 'middleware' => 'auth'], function () {
-    Route::get('/', [App\Http\Controllers\TicketsController::class, 'index'])->name('tickets.index');
-    Route::get('/create', [App\Http\Controllers\TicketsController::class, 'create'])->name('tickets.create');
-    Route::post('/store', [App\Http\Controllers\TicketsController::class, 'store'])->name('tickets.store');
-    Route::get('/{id}', [App\Http\Controllers\TicketsController::class, 'show'])->name('tickets.show');
-    Route::post('{id}/reply', [App\Http\Controllers\TicketsController::class, 'reply'])->name('tickets.reply');
-    Route::post('{id}/close', [App\Http\Controllers\TicketsController::class, 'close'])->name('tickets.close');	
+    Route::get('/', [App\Http\Controllers\Clients\TicketController::class, 'index'])->name('clients.tickets.index');
+    Route::get('/create', [App\Http\Controllers\Clients\TicketController::class, 'create'])->name('clients.tickets.create');
+    Route::post('/store', [App\Http\Controllers\Clients\TicketController::class, 'store'])->name('clients.tickets.store');
+    Route::get('/{ticket}', [App\Http\Controllers\Clients\TicketController::class, 'show'])->name('clients.tickets.show');
+    Route::post('{ticket}/reply', [App\Http\Controllers\Clients\TicketController::class, 'reply'])->name('clients.tickets.reply');
+    Route::post('{ticket}/close', [App\Http\Controllers\Clients\TicketController::class, 'close'])->name('clients.tickets.close');
 });
 
-Route::group(['prefix' =>'invoices', 'middleware' => 'auth'], function () {
-    Route::get('/', [App\Http\Controllers\InvoiceController::class, 'index'])->name('invoice.index');
-    Route::get('/{id}', [App\Http\Controllers\InvoiceController::class, 'show'])->name('invoice.show');
-    Route::post('/{id}/pay', [App\Http\Controllers\InvoiceController::class, 'pay'])->name('invoice.pay');
-    Route::get('/{id}/download', [App\Http\Controllers\InvoiceController::class, 'download'])->name('invoice.download');
+Route::group(['prefix' => 'invoices', 'middleware' => 'auth'], function () {
+    Route::get('/', [App\Http\Controllers\Clients\InvoiceController::class, 'index'])->name('clients.invoice.index');
+    Route::get('/{invoice}', [App\Http\Controllers\Clients\InvoiceController::class, 'show'])->name('clients.invoice.show');
+    Route::post('/{invoice}/pay', [App\Http\Controllers\Clients\InvoiceController::class, 'pay'])->name('clients.invoice.pay');
+});
+
+Route::group(['prefix' => 'announcements'], function () {
+    Route::get('/', [App\Http\Controllers\AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/{announcement}', [App\Http\Controllers\AnnouncementController::class, 'view'])->name('announcements.view');
+});
+
+Route::group(['prefix' => 'client/products', 'middleware' => 'auth'], function () {
+    Route::get('/', [App\Http\Controllers\Clients\ProductController::class, 'index'])->name('clients.active-products.index');
+    Route::get('/{product}', [App\Http\Controllers\Clients\ProductController::class, 'index'])->name('clients.active-products.show');
+    Route::get('/{product}/{url}', [App\Http\Controllers\Clients\ProductController::class, 'show'])->name('clients.active-products.extension');
+});
+
+Route::group(['prefix' => 'api', 'middleware' => 'auth'], function () {
+    Route::get('/', [App\Http\Controllers\Clients\APIController::class, 'index'])->name('clients.api.index');
+    Route::post('/', [App\Http\Controllers\Clients\APIController::class, 'create'])->name('clients.api.create');
+    Route::delete('/{id}', [App\Http\Controllers\Clients\APIController::class, 'delete'])->name('clients.api.delete');
 });
 
 require __DIR__ . '/auth.php';
-require __DIR__ . '/admin.php';
-require __DIR__ . '/extensions.php';
+
+Route::get('/{slug?}/{product?}', [App\Http\Controllers\BasisController::class, 'products'])->name('products');

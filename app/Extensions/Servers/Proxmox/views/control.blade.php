@@ -15,7 +15,7 @@
         </button>
 
         <button class="button button-primary" onclick="proxmox_control('stop')"
-            {{ $status === 'stopped' ? "disabled=true" : '' }}">
+            {{ $status === 'stopped' && "disabled=true" }}">
             Force Stop Server
         </button>
     </div>
@@ -27,9 +27,7 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onload = function() {
             if (xhr.status === 200) {
-                console.log(xhr.responseText);
                 var data = JSON.parse(xhr.responseText);
-                console.log(data);
                 if (data.status == 'success') {
                     window.location.reload();
                 } else {
@@ -95,7 +93,7 @@
                 data: [
                     @foreach ($stats as $stat)
                         @isset($stat['mem'])
-                            '{{ $stat['mem'] }}',
+                            '{{ $stat['mem'] / 1024 / 1024 }}',
                         @endisset
                     @endforeach
                 ],
