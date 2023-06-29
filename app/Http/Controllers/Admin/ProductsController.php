@@ -33,6 +33,9 @@ class ProductController extends Controller
      *
      * @return View
      */
+    if($request->get('no_image')){
+        $request->merge(['image' => null]);
+    }
     public function create(): View
     {
         $categories = Category::all();
@@ -55,6 +58,10 @@ class ProductController extends Controller
             'category_id' => 'required|integer',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5242',
         ]);
+        if($request->get('no_image')){
+            $request->merge(['image' => null]);
+        }
+        
         if ($request->get('no_image')) {
             $data['image'] = 'null';
         } else {
