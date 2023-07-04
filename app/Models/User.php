@@ -42,6 +42,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'is_admin',
+        'permissions',
+        'api_token',
     ];
 
     /**
@@ -59,6 +62,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Orders::class, 'user', 'id');
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Tickets::class, 'client', 'id');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class, 'user_id', 'id');
+    }
+    
     public function hasPermissionTo($permission)
     {
         if(!$this->is_admin) {
