@@ -1,32 +1,35 @@
 <?php
+
 namespace App\Http\Controllers\API\Clients;
 
 use App\Classes\API;
-use App\Helpers\ExtensionHelper;
-use App\Http\Controllers\Controller;
-use App\Models\Invoices;
 use App\Models\Orders;
+use App\Models\Invoices;
 use App\Models\Products;
 use Illuminate\Http\Request;
+use App\Helpers\ExtensionHelper;
+use App\Http\Controllers\Controller;
 
 class InvoiceController extends Controller
 {
     /**
-     * Get all invoices of current user
+     * Get all invoices of current user.
      */
-    public function getInvoices(Request $request) {
+    public function getInvoices(Request $request)
+    {
         $user = $request->user();
         $invoices = $user->invoices()->paginate(25);
 
         return response()->json([
-            'invoices' => API::repaginate($invoices)
+            'invoices' => API::repaginate($invoices),
         ], 200);
     }
 
     /**
-     * Get invoice by ID
+     * Get invoice by ID.
      */
-    public function getInvoice(Request $request, int $invoiceId) {
+    public function getInvoice(Request $request, int $invoiceId)
+    {
         $user = $request->user();
         $invoice = Invoices::where('id', $invoiceId)->where('user_id', $user->id)->firstOrFail();
         $order = Orders::findOrFail($invoice->order_id);
@@ -45,16 +48,17 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Pay invoice by ID
+     * Pay invoice by ID.
      */
-    public function payInvoice(Request $request, int $invoiceId) {
+    public function payInvoice(Request $request, int $invoiceId)
+    {
         $user = $request->user();
         $invoice = Invoices::where('id', $invoiceId)->where('user_id', $user->id)->firstOrFail();
         $order = Orders::findOrFail($invoice->order_id);
 
         if ($invoice->status != 'unpaid') {
             return response()->json([
-                'error' => 'Invoice is already paid'
+                'error' => 'Invoice is already paid',
             ], 400);
         }
 
@@ -79,12 +83,12 @@ class InvoiceController extends Controller
             }
 
             return response()->json([
-                'error' => 'Payment method not found'
+                'error' => 'Payment method not found',
             ], 404);
-        } 
+        }
 
         return response()->json([
-            'error' => 'Payment method not found'
+            'error' => 'Payment method not found',
         ], 404);
     }
 }

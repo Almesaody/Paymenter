@@ -1,31 +1,34 @@
 <?php
+
 namespace App\Http\Controllers\API\Clients;
 
 use App\Classes\API;
-use App\Http\Controllers\Controller;
-use App\Models\TicketMessages;
 use App\Models\Tickets;
 use Illuminate\Http\Request;
+use App\Models\TicketMessages;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\RateLimiter;
 
 class TicketController extends Controller
 {
     /**
-     * Get all tickets of current user
+     * Get all tickets of current user.
      */
-    public function getTickets(Request $request) {
+    public function getTickets(Request $request)
+    {
         $user = $request->user();
         $tickets = $user->tickets()->paginate(25);
 
         return response()->json([
-            'tickets' => API::repaginate($tickets)
+            'tickets' => API::repaginate($tickets),
         ], 200);
     }
 
     /**
-     * Create a new ticket
+     * Create a new ticket.
      */
-    public function createTicket(Request $request, int $ticketId) {
+    public function createTicket(Request $request, int $ticketId)
+    {
         $user = $request->user();
 
         $request->validate([
@@ -46,7 +49,7 @@ class TicketController extends Controller
 
         if (!$executed) {
             return response()->json([
-                'error' => 'You are creating too many new tickets. Please wait a few minutes and try again.'
+                'error' => 'You are creating too many new tickets. Please wait a few minutes and try again.',
             ], 429);
         }
 
@@ -65,26 +68,28 @@ class TicketController extends Controller
 
         return response()->json([
             'message' => 'Ticket was successfully created.',
-            'ticket' => $ticket
+            'ticket' => $ticket,
         ], 204);
     }
 
     /**
-     * Get a ticket by ID
+     * Get a ticket by ID.
      */
-    public function getTicket(Request $request, int $ticketId) {
+    public function getTicket(Request $request, int $ticketId)
+    {
         $user = $request->user();
         $ticket = Tickets::where('client', $user->id)->where('id', $ticketId)->firstOrFail();
 
         return response()->json([
-            'ticket' => $ticket
+            'ticket' => $ticket,
         ], 200);
     }
 
     /**
-     * Close a ticket by ID
+     * Close a ticket by ID.
      */
-    public function closeTicket(Request $request, int $ticketId) {
+    public function closeTicket(Request $request, int $ticketId)
+    {
         $user = $request->user();
         $ticket = Tickets::where('client', $user->id)->where('id', $ticketId)->firstOrFail();
 
@@ -92,14 +97,15 @@ class TicketController extends Controller
         $ticket->save();
 
         return response()->json([
-            'message' => "Ticket #{$ticket->id} was successfully closed.}"
+            'message' => "Ticket #{$ticket->id} was successfully closed.}",
         ], 200);
     }
 
     /**
-     * Reply to a ticket
+     * Reply to a ticket.
      */
-    public function replyTicket(Request $request, int $ticketId) {
+    public function replyTicket(Request $request, int $ticketId)
+    {
         $user = $request->user();
         $ticket = Tickets::where('client', $user->id)->where('id', $ticketId)->firstOrFail();
 
@@ -109,9 +115,9 @@ class TicketController extends Controller
 
         $message = json_decode($request->getContent())->message;
 
-        if($ticket->status == 'closed'){
+        if ($ticket->status == 'closed') {
             return response()->json([
-                'error' => 'This ticket is closed and thus cannot be replied to.'
+                'error' => 'This ticket is closed and thus cannot be replied to.',
             ], 403);
         }
 
@@ -125,7 +131,7 @@ class TicketController extends Controller
 
         if (!$executed) {
             return response()->json([
-                'error' => 'You are sending too many messages. Please wait a few minutes and try again.'
+                'error' => 'You are sending too many messages. Please wait a few minutes and try again.',
             ], 429);
         }
 
@@ -136,7 +142,7 @@ class TicketController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Message was successfully added to ticket.'
+            'message' => 'Message was successfully added to ticket.',
         ], 204);
     }
 }

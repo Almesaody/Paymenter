@@ -2,7 +2,7 @@
 
 namespace App\Validators;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\Client();
 
 class ReCaptcha
 {
@@ -12,14 +12,14 @@ class ReCaptcha
         $response = $client->post(
             'https://www.google.com/recaptcha/api/siteverify',
             [
-                'form_params' =>
-                [
+                'form_params' => [
                     'secret' => config('settings::recaptcha_secret_key'),
-                    'response' => $value
-                ]
+                    'response' => $value,
+                ],
             ]
         );
-        $body = json_decode((string)$response->getBody());
+        $body = json_decode((string) $response->getBody());
+        
         return $body->success;
     }
 }
